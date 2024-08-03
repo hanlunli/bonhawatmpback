@@ -148,39 +148,6 @@ class UserAPI:
                         "data": None
                 }, 500
     
-    class _Send(Resource):
-        def post(self):
-            body = request.get_json()
-            uid = body.get('uid')
-            item = body.get('items')
-            users = User.query.all()
-            for user in users:
-                if user.uid == uid:
-                    user.items = json.loads(user.items)
-                    user.items.append(item)
-                    user.items = json.dumps(user.items)
-                    db.session.commit() 
-                    return(f"you just gave {user.name} an item")
-
-    class _Friendrq(Resource):
-        def post(self):
-            body = request.get_json()
-            users = User.query.all()
-            sender = body.get('sender')
-            receiver = body.get('receiver')
-            if sender == receiver:
-                return {"message": "Cannot send friend request to yourself"}, 400
-            for user in users:
-                if user.uid == receiver:
-                    user.friendrq = json.loads(user.friendrq)
-                    if sender in user.friendrq:
-                        return "Friend request already sent", 400
-                    if sender in user.friends:
-                        return "Already friends", 400
-                    user.friendrq.append(sender)
-                    user.friendrq = json.dumps(user.friendrq)
-                    db.session.commit() 
-                    return(f"You sent a friend request to {user.name}")
         def delete(self):
             body = request.get_json()
             action = body.get('action')
@@ -212,5 +179,3 @@ class UserAPI:
     # building RESTapi endpoint
     api.add_resource(_CRUD, '/')
     api.add_resource(_Security, '/authenticate')
-    api.add_resource(_Send, '/send')
-    api.add_resource(_Friendrq, '/friendrq')
